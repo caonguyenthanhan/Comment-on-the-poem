@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Bình Thơ",
+  "version": "1.0",
+  "description": "Bình luận và phân tích bài thơ bằng Google Gemini API và đọc văn bản với nhiều tùy chọn giọng đọc.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tts",
+    "storage",
+    "contextMenus",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/",
+    "https://texttospeech.googleapis.com/",
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["prompt.txt"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
