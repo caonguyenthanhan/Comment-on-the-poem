@@ -4,66 +4,85 @@
   <title>Bình Thơ</title>
   <meta charset="UTF-8">
   <style>
-    body { width: 380px; font-family: Arial, sans-serif; padding: 10px; font-size: 14px; }
-    h1 { font-size: 16px; text-align: center; margin-top: 0; }
-    input[type="password"], input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; }
-    textarea { height: 100px; resize: vertical; }
-    button { padding: 10px; margin-top: 5px; cursor: pointer; border: none; border-radius: 4px; color: white; font-weight: bold; }
+    body { width: 320px; font-family: Arial, sans-serif; padding: 8px; font-size: 13px; }
+    h1 { font-size: 15px; text-align: center; margin-top: 0; margin-bottom: 5px; }
+    input[type="password"], input[type="text"], textarea { width: 100%; padding: 6px; margin-bottom: 4px; border: 1px solid #ccc; border-radius: 4px; }
+    textarea { height: 80px; resize: vertical; }
+    button { padding: 8px; margin-top: 4px; cursor: pointer; border: none; border-radius: 4px; color: white; font-weight: bold; }
     button:hover { opacity: 0.9; }
     button:disabled { background-color: #ccc; cursor: not-allowed; }
-    select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    select { width: 100%; padding: 6px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; }
     #analyzeBtn { background-color: #4285F4; width: 100%; }
     #controls button { width: 49%; display: inline-block; }
     #playPauseBtn { background-color: #34A853; }
     #stopBtn { background-color: #EA4335; }
-    #copyBtn { background-color: #FBBC05; width: 100%; margin-bottom: 10px; }
-    .api-section { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
-    .api-section label { display: block; margin-bottom: 3px; font-weight: bold; }
-    #result-box { margin-top: 10px; padding: 10px; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 4px; font-size: 13px; line-height: 1.5; }
+    #copyBtn { background-color: #FBBC05; width: 100%; margin-bottom: 8px; }
+    .api-section { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
+    .api-section label { display: block; margin-bottom: 2px; font-weight: bold; font-size: 12px; }
+    #result-box { margin-top: 8px; padding: 8px; white-space: pre-wrap; word-wrap: break-word; max-height: 150px; overflow-y: auto; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 4px; font-size: 12px; line-height: 1.4; }
     .api-input-container { display: flex; align-items: center; }
-    .api-input-container input { margin-right: 5px; }
-    .get-key-btn { background-color: #0F9D58; padding: 8px; font-size: 12px; }
-    .prompt-section { margin-bottom: 10px; }
-    .prompt-section label { display: block; margin-bottom: 3px; font-weight: bold; }
-    .prompt-section button { background-color: #0F9D58; width: 100%; }
+    .api-input-container input { margin-right: 4px; }
+    .get-key-btn { background-color: #0F9D58; padding: 6px; font-size: 11px; }
+    .prompt-section { margin-bottom: 8px; }
+    .prompt-section label { display: block; margin-bottom: 2px; font-weight: bold; font-size: 12px; }
+    .prompt-section button { background-color: #0F9D58; }
+    p { margin: 0 0 5px 0; font-size: 11px; }
+    .collapsible { cursor: pointer; display: flex; justify-content: space-between; align-items: center; width: 100%; background-color: #e0f0ff; padding: 6px; border: none; text-align: left; outline: none; font-weight: bold; margin-bottom: 4px; border-radius: 4px; color: #333; }
+    .collapsible:after { content: '\002B'; font-weight: bold; float: right; margin-left: 5px; }
+    .active { background-color: #c5e1ff; }
+    .active:after { content: '\2212'; }
+    .content { max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; }
+    .content.show { max-height: 500px; }
+    .button-row { display: flex; gap: 5px; width: 100%; }
+    .button-row button { flex: 1; margin-top: 4px; }
   </style>
 </head>
 <body>
   <h1>Bình Thơ</h1>
   <p style="text-align: center; margin-top: -5px; font-size: 12px; color: #4285F4;">Phân tích và bình luận thơ với Gemini AI</p>
   
-  <div class="api-section">
-    <label for="apiKey">Gemini API Key:</label>
-    <div class="api-input-container">
-      <input type="password" id="apiKey" placeholder="Dán Gemini API Key của bạn vào đây">
-      <button id="getKeyBtn" class="get-key-btn" title="Lấy Gemini API Key">🔑 Lấy Key</button>
+  <button class="collapsible">Cài đặt API Key</button>
+  <div class="content">
+    <div class="api-section">
+      <label for="apiKey">Gemini API Key:</label>
+      <div class="api-input-container">
+        <input type="password" id="apiKey" placeholder="Dán Gemini API Key của bạn vào đây">
+        <button id="getKeyBtn" class="get-key-btn" title="Lấy Gemini API Key">🔑 Lấy Key</button>
+      </div>
+      <button id="saveKeyBtn" style="background-color: #fbbc05; width: 100%;">Lưu Key</button>
     </div>
-    <button id="saveKeyBtn" style="background-color: #fbbc05; width: 100%;">Lưu Key</button>
+
+    <div class="api-section">
+      <label>Cài đặt Google Cloud TTS:</label>
+      <input type="password" id="googleTtsApiKey" placeholder="Google Cloud API Key">
+      <button id="saveGoogleTtsBtn" style="background-color: #fbbc05; width: 100%;">Lưu Google TTS Key</button>
+    </div>
   </div>
 
-  <div class="api-section">
-    <label>Cài đặt Google Cloud TTS:</label>
-    <input type="password" id="googleTtsApiKey" placeholder="Google Cloud API Key">
-    <button id="saveGoogleTtsBtn" style="background-color: #fbbc05; width: 100%;">Lưu Google TTS Key</button>
-  </div>
-
-  <div class="prompt-section">
-    <label for="promptEditor">Tùy chỉnh prompt:</label>
-    <textarea id="promptEditor" placeholder="Đang tải prompt..."></textarea>
-    <button id="savePromptBtn">Lưu Prompt</button>
-    <button id="resetPromptBtn" style="background-color: #EA4335; margin-top: 5px;">Khôi phục mặc định</button>
+  <button class="collapsible">Tùy chỉnh Prompt</button>
+  <div class="content">
+    <div class="prompt-section">
+      <label for="promptEditor">Tùy chỉnh prompt:</label>
+      <textarea id="promptEditor" placeholder="Đang tải prompt..."></textarea>
+      <div class="button-row">
+        <button id="savePromptBtn">Lưu Prompt</button>
+        <button id="resetPromptBtn" style="background-color: #EA4335;">Khôi phục mặc định</button>
+      </div>
+    </div>
   </div>
 
   <button id="analyzeBtn">Bình thơ đã chọn</button>
   <button id="copyBtn">Sao chép kết quả</button>
   
-  <label for="ttsEngine">Chọn giọng đọc:</label>
-  <select id="ttsEngine">
-    <option value="browser">Giọng đọc của trình duyệt</option>
-    <option value="google">Giọng đọc Google Cloud</option>
-  </select>
+  <div class="button-row">
+    <label for="ttsEngine" style="flex: 2;">Chọn giọng đọc:</label>
+    <select id="ttsEngine" style="flex: 3;">
+      <option value="browser">Giọng đọc của trình duyệt</option>
+      <option value="google">Giọng đọc Google Cloud</option>
+    </select>
+  </div>
   
-  <div id="controls">
+  <div id="controls" class="button-row">
     <button id="playPauseBtn">▶️ Đọc</button>
     <button id="stopBtn">⏹️ Dừng</button>
   </div>
@@ -71,5 +90,6 @@
   <div id="result-box">Trạng thái: Sẵn sàng. Chọn văn bản thơ và nhấp chuột phải để bình thơ.</div>
 
   <script src="popup.js"></script>
+  <script src="collapsible.js"></script>
 </body>
 </html>

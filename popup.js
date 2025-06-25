@@ -163,58 +163,67 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
-    // Hàm để đảm bảo port kết nối luôn hoạt động
+    // Xử lý tin nhắn từ background script
+    function handleMessage(message) {
+        if (message.type === "ANALYSIS_RESULT") {
+            if (message.success) {
+                resultBox.textContent = message.analysis;
+                // Tự động sao chép kết quả vào clipboard
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = message.analysis;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    copyBtn.textContent = '✓ Đã sao chép';
+                    setTimeout(() => { copyBtn.textContent = 'Sao chép kết quả'; }, 2000);
+                } catch (err) {
+                    console.error('Lỗi khi sao chép:', err);
+                }
+            } else {
+                resultBox.textContent = `Lỗi bình luận: ${message.error}`;
+            }
+            analyzeBtn.textContent = 'Bình thơ đã chọn';
+            analyzeBtn.disabled = false;
+        } else if (message.type === "TTS_RESULT") {
+            if (message.success) {
+                playAudioFromBase64(message.audioData);
+            } else {
+                resultBox.textContent = `Lỗi đọc: ${message.error}`;
+                resetPlayButton();
+            }
+        }
+    }
+    
+    // Khởi tạo kết nối với background script
+    function initializeConnection() {
+        try {
+            port = chrome.runtime.connect({ name: "popup" });
+            port.onMessage.addListener(handleMessage);
+            
+            // Xử lý khi kết nối bị đóng
+            port.onDisconnect.addListener(() => {
+                console.log("Port bị ngắt kết nối");
+                port = null;
+            });
+            
+            return port;
+        } catch (error) {
+            console.error("Lỗi khi kết nối port:", error);
+            port = null;
+            return null;
+        }
+    }
+    
+    // Đảm bảo kết nối được thiết lập
     function ensureConnected() {
         if (!port || port.error) {
-            try {
-                port = chrome.runtime.connect({name: "popup"});
-                
-                // Lắng nghe tin nhắn từ background script
-                port.onMessage.addListener((message) => {
-                    if (message.type === "ANALYSIS_RESULT") {
-                        if (message.success) {
-                            resultBox.textContent = message.analysis;
-                            // Tự động sao chép kết quả vào clipboard
-                            try {
-                                const textArea = document.createElement('textarea');
-                                textArea.value = message.analysis;
-                                textArea.style.position = 'fixed';
-                                textArea.style.left = '-999999px';
-                                textArea.style.top = '-999999px';
-                                document.body.appendChild(textArea);
-                                textArea.focus();
-                                textArea.select();
-                                document.execCommand('copy');
-                                document.body.removeChild(textArea);
-                                copyBtn.textContent = '✓ Đã sao chép';
-                                setTimeout(() => { copyBtn.textContent = 'Sao chép kết quả'; }, 2000);
-                            } catch (err) {
-                                console.error('Lỗi khi sao chép:', err);
-                            }
-                        } else {
-                            resultBox.textContent = `Lỗi bình luận: ${message.error}`;
-                        }
-                        analyzeBtn.textContent = 'Bình thơ đã chọn';
-                        analyzeBtn.disabled = false;
-                    } else if (message.type === "TTS_RESULT") {
-                        if (message.success) {
-                            playAudioFromBase64(message.audioData);
-                        } else {
-                            resultBox.textContent = `Lỗi đọc: ${message.error}`;
-                            resetPlayButton();
-                        }
-                    }
-                });
-                
-                // Xử lý khi kết nối bị đóng
-                port.onDisconnect.addListener(() => {
-                    console.log("Port bị ngắt kết nối");
-                    port = null;
-                });
-            } catch (error) {
-                console.error("Lỗi khi kết nối port:", error);
-                port = null;
-            }
+            return initializeConnection();
         }
         return port;
     }
@@ -263,13 +272,25 @@ document.addEventListener('DOMContentLoaded', function () {
         analyzeBtn.textContent = 'Đang xử lý...';
         analyzeBtn.disabled = true;
         
-        // Gửi tin nhắn qua kết nối
-        port.postMessage({
-            type: "ANALYZE_REQUEST",
-            apiKey: apiKey,
-            content: text,
-            prompt: prompt
-        });
+        // Đảm bảo kết nối được thiết lập trước khi gửi tin nhắn
+        const activePort = ensureConnected();
+        if (activePort) {
+            // Gửi tin nhắn qua kết nối
+            activePort.postMessage({
+                type: "ANALYZE_REQUEST",
+                apiKey: apiKey,
+                content: text,
+                prompt: prompt
+            });
+        } else {
+            // Nếu không thể kết nối, sử dụng chrome.runtime.sendMessage thay thế
+            chrome.runtime.sendMessage({
+                type: "ANALYZE_REQUEST",
+                apiKey: apiKey,
+                content: text,
+                prompt: prompt
+            });
+        }
     }
 
     // Hàm để lấy văn bản đã chọn từ trang web

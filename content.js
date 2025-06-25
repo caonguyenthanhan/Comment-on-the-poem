@@ -30,16 +30,17 @@ function showNotification(message) {
     notification.id = 'binhTho-notification';
     notification.style.cssText = `
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 10px;
+      right: 10px;
       background-color: #4285F4;
       color: white;
-      padding: 16px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       z-index: 10000;
       font-family: 'Roboto', sans-serif;
-      max-width: 300px;
+      max-width: 250px;
+      font-size: 13px;
       opacity: 0;
       transition: opacity 0.3s ease-in-out;
     `;

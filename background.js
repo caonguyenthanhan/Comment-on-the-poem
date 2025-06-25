@@ -211,6 +211,11 @@ async function callGoogleTtsApi(config, text, port = null) {
 // Cập nhật xử lý kết nối từ popup
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "popup") {
+    // Xử lý khi kết nối bị đóng
+    port.onDisconnect.addListener(() => {
+      console.log("Kết nối với popup bị đóng");
+    });
+    
     port.onMessage.addListener((request) => {
       if (request.type === "ANALYZE_REQUEST") {
         callGeminiApi(request.apiKey, request.content, request.prompt, false, port);
